@@ -45,7 +45,7 @@ class Branding
     {
         if (UseImagesets)
             return "set:branding image:logo";
-        return "Colorful-UI/GUI/textures/Shared/Legion_Logo.paa";
+        return "Colorful-UI/GUI/textures/Shared/Legion_Logo.edds";
     }
     static void ApplyLogo(ImageWidget widget)
     {
