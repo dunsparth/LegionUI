@@ -1,0 +1,14 @@
+MetaFileClass {
+ Name "{B0FE4D7C1D3F436B}Colorful-UI/GUI/textures/Shared/Legion_Logo.edds"
+ Configurations {
+  PNGResourceClass PC {
+   SourceFile "Legion_Logo.png"
+  }
+  PNGResourceClass XBOX_ONE : PC {
+  }
+  PNGResourceClass PS4 : PC {
+  }
+  PNGResourceClass LINUX : PC {
+  }
+ }
+}
