@@ -11,3 +11,4 @@
 # Files not to be included in the repo
 *.tga
 build-cui.sh
+png2edds.py

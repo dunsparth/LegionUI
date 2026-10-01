@@ -51,4 +51,17 @@ class UIColor
 	static int cuiDarkBlue()      { return ARGB(155, 0, 0, 32); };
 	static int cuiSubtleRed()     { return ARGB(255, 100, 35, 35); };
 	static int cuiBrightRed()     { return ARGB(255, 152, 0, 0); };
+
+	// The Legion — dark theme with fire accents
+	static int legionEmber()      { return ARGB(255, 230, 92, 25); };   // Main fire orange (brand)
+	static int legionEmberDark()  { return ARGB(255, 130, 40, 10); };   // Burnt orange (hover backgrounds, lines)
+	static int legionFlame()      { return ARGB(255, 255, 170, 60); };  // Bright flame yellow-orange (highlights)
+	static int legionAsh()        { return ARGB(255, 200, 192, 182); }; // Warm light grey (loading messages)
+	static int legionSmoke()      { return ARGB(255, 140, 134, 128); }; // Warm mid grey (secondary text)
+	static int legionCharcoal()   { return ARGB(170, 10, 10, 12); };    // Near-black translucent panels
+	static int legionCoal()       { return ARGB(190, 40, 18, 10); };    // Dark ember panel hover
+
+	// Alternate accents — swap into Scheme.c BrandColor() if you want a different look
+	static int legionBloodRed()   { return ARGB(255, 160, 20, 20); };
+	static int legionGold()       { return ARGB(255, 200, 160, 60); };
 }
