@@ -101,7 +101,20 @@ modded class OptionsMenu extends UIScriptedMenu
 			oldTabber.CuiCancelInitTimer();
 		oldRoot.Unlink();
 
+		if (m_Tabber)
+			m_Tabber.CuiFilterModTabs(4);   // Legion: hide non-whitelisted mod tabs
+
 		return layoutRoot;
+	}
+
+	// Legion: some mods add their tab after this menu is built, so keep filtering.
+	// Cheap: it only does work when it finds a new tab button.
+	override void Update(float timeslice)
+	{
+		super.Update(timeslice);
+
+		if (m_Tabber)
+			m_Tabber.CuiFilterModTabs(4);
 	}
 
 	override void ColorDisable(Widget w)

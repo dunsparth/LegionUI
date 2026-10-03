@@ -12,6 +12,7 @@ modded class TabberUI
 	// Add more names to show other mod tabs, e.g. {"HUD", "EXPANSION"}.
 	// Hidden tabs still exist (so their mods don't break), they just have no button.
 	protected bool m_CuiFilterTabs = false;
+	protected ref array<Widget> m_CuiOwnControls = new array<Widget>();   // tab buttons built with the CUI layout
 
 	void CuiEnableTabFilter()
 	{
@@ -35,6 +36,65 @@ modded class TabberUI
 				return true;
 		}
 		return false;
+	}
+	// Catches tab buttons other mods (e.g. Expansion) build themselves,
+	// bypassing CUI's AddTab. DayZ can't read text back from a TextWidget,
+	// so mod tabs are recognised by a widget inside their page instead.
+	// Allowed ones get re-skinned with the CUI button (CUI font), the rest are hidden.
+	// builtInCount = CUI's own tabs from the layout (GAME/AUDIO/VIDEO/CONTROLS = 4).
+	protected int m_CuiFilterPasses = 0;
+	protected int m_CuiLastCount = -1;
+
+	// Returns the tab title to show if this page belongs to an allowed mod, else "".
+	// To allow another mod tab, add a line with a widget name from its page.
+	protected string CuiAllowedTitleForPane(Widget pane)
+	{
+		if (!pane)
+			return "";
+
+		if (pane.FindAnyWidget("CHOptRoot"))   // REZ_CustomHUD (The Legion HUD)
+			return "HUD";
+
+		return "";
+	}
+
+	void CuiFilterModTabs(int builtInCount)
+	{
+		if (!m_CuiFilterTabs || !m_TabControls || !m_Tabs)
+			return;
+
+		int count = m_TabControls.Count();
+		if (count != m_CuiLastCount)
+		{
+			m_CuiLastCount = count;
+			m_CuiFilterPasses = 0;
+		}
+		if (m_CuiFilterPasses > 120)   // settle after ~2 seconds, re-check when tabs are added
+			return;
+		m_CuiFilterPasses++;
+
+		bool changed = false;
+		for (int i = builtInCount; i < count; i++)
+		{
+			Widget c = m_TabControls.Get(i);
+			if (!c || m_CuiOwnControls.Find(c) != -1)
+				continue;   // built by CUI; already filtered by name in AddTab/CuiAdoptTab
+
+				string title = CuiAllowedTitleForPane(m_Tabs.Get(i));
+			if (title != "")
+			{
+				CuiReskinTabControl(i, title);   // swap in a CUI-styled button
+				changed = true;
+			}
+			else if (c.IsVisible())
+			{
+				c.Show(false);
+				changed = true;
+			}
+		}
+
+		if (changed)
+			AlignTabbers();
 	}
 	// -----------------------------------------------------------------------
 
@@ -64,6 +124,7 @@ modded class TabberUI
 			control.Show( false );
 
 		control.SetHandler( this );
+		m_CuiOwnControls.Insert( control );
 		m_TabControls.Insert( new_index, control );
 		m_Tabs.Insert( new_index, pane );
 
@@ -133,10 +194,10 @@ modded class TabberUI
 		if( tab_control )
 		{
 			Widget tab_title = TextWidget.Cast(tab_control.FindAnyWidget( tab_control.GetName() + "_Title" ));
-			
+
 			int color_title = colorScheme.TabHoverColor();
 			int color_backg = UIColor.Black();
-			
+
 			tab_title.SetColor( color_title );
 			tab_control.SetColor( color_backg );
 		}
@@ -149,15 +210,15 @@ modded class TabberUI
 		{
 			return false;
 		}
-		
+
 		Widget tab_control = m_TabControls.Get( index );
 		if( tab_control )
-		{			
+		{
 			Widget tab_title = TextWidget.Cast(tab_control.FindAnyWidget( tab_control.GetName() + "_Title" ));
 			tab_title.SetColor(colorScheme.TabHoverColor());
 			tab_control.SetColor(UIColor.Black());
 		}
-		
+
 		return false;
 	}
 
@@ -181,6 +242,7 @@ modded class TabberUI
 		control.FindAnyWidget( "Tab_Control_x_Background" ).SetName( cname + "_Background" );
 		control_text.SetText( name );
 		control.SetHandler( this );
+		m_CuiOwnControls.Insert( control );
 
 		m_TabControls.Set( index, control );
 		old_control.Unlink();
@@ -197,18 +259,19 @@ modded class TabberUI
 		Widget tab = GetGame().GetWorkspace().CreateWidgets( "gui/layouts/new_ui/tabber_prefab/tab.layout", m_Root );
 		Widget control = GetGame().GetWorkspace().CreateWidgets( "Colorful-UI/GUI/layouts/components/tabber_prefab/cui.tab_control.layout", m_Root.FindAnyWidget( "Tab_Control_Container" ) );
 		TextWidget control_text = TextWidget.Cast( control.FindAnyWidget( "Tab_Control_x_Title" ) );
-		
+
 		tab.SetName( "Tab_" + new_index );
 		control.SetName( "Tab_Control_" + new_index );
 		control_text.SetName( "Tab_Control_" + new_index + "_Title" );
 		control.FindAnyWidget( "Tab_Control_x_Background" ).SetName( "Tab_Control_" + new_index + "_Background" );
-		
+
 		control_text.SetText( name );
 
 		if ( !CuiIsTabAllowed( name ) )
 			control.Show( false );
-		
+
 		control.SetHandler( this );
+		m_CuiOwnControls.Insert( control );
 		m_TabControls.Insert( new_index, control );
 		m_Tabs.Insert( new_index, tab );
 
