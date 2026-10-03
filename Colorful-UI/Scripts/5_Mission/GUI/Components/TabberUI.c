@@ -7,6 +7,37 @@ modded class TabberUI
 	static ref array<int>    s_CuiForeignTabIndices = new array<int>();
 	static ref array<string> s_CuiForeignTabNames    = new array<string>();
 
+	// ---- Legion: mod-tab filter -------------------------------------------
+	// Only mod tabs listed here get a visible button in the options menu.
+	// Add more names to show other mod tabs, e.g. {"HUD", "EXPANSION"}.
+	// Hidden tabs still exist (so their mods don't break), they just have no button.
+	protected bool m_CuiFilterTabs = false;
+
+	void CuiEnableTabFilter()
+	{
+		m_CuiFilterTabs = true;
+	}
+
+	bool CuiIsTabAllowed(string name)
+	{
+		if (!m_CuiFilterTabs)
+			return true;
+
+		array<string> allowed = {"HUD"};
+
+		string n = name;
+		n.ToUpper();
+		foreach (string a : allowed)
+		{
+			string au = a;
+			au.ToUpper();
+			if (n == au)
+				return true;
+		}
+		return false;
+	}
+	// -----------------------------------------------------------------------
+
 	void CuiCancelInitTimer()
 	{
 		if (m_InitTimer)
@@ -28,6 +59,9 @@ modded class TabberUI
 		control.FindAnyWidget( "Tab_Control_x_Background" ).SetName( "Tab_Control_" + new_index + "_Background" );
 
 		control_text.SetText( name );
+
+		if ( !CuiIsTabAllowed( name ) )
+			control.Show( false );
 
 		control.SetHandler( this );
 		m_TabControls.Insert( new_index, control );
@@ -170,6 +204,9 @@ modded class TabberUI
 		control.FindAnyWidget( "Tab_Control_x_Background" ).SetName( "Tab_Control_" + new_index + "_Background" );
 		
 		control_text.SetText( name );
+
+		if ( !CuiIsTabAllowed( name ) )
+			control.Show( false );
 		
 		control.SetHandler( this );
 		m_TabControls.Insert( new_index, control );

@@ -27,6 +27,8 @@ modded class OptionsMenu extends UIScriptedMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("Colorful-UI/GUI/layouts/options/cui.options_menu.layout", null);
 
 		layoutRoot.FindAnyWidget("Tabber").GetScript(m_Tabber);
+		if (m_Tabber)
+			m_Tabber.CuiEnableTabFilter();   // Legion: only show whitelisted mod tabs (see TabberUI.c)
 
 		m_Details  = layoutRoot.FindAnyWidget("settings_details");
 		m_Version  = TextWidget.Cast(layoutRoot.FindAnyWidget("version"));
