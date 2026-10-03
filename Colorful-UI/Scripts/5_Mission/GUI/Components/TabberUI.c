@@ -76,11 +76,15 @@ modded class TabberUI
 		bool changed = false;
 		for (int i = builtInCount; i < count; i++)
 		{
-			Widget c = m_TabControls.Get(i);
+			Widget pane = m_Tabs.Get(i);
+			if (pane)
+				pane.SetFlags(WidgetFlags.IGNOREPOINTER);   // mod tab pages are full-screen; let clicks reach the buttons
+
+				Widget c = m_TabControls.Get(i);
 			if (!c || m_CuiOwnControls.Find(c) != -1)
 				continue;   // built by CUI; already filtered by name in AddTab/CuiAdoptTab
 
-				string title = CuiAllowedTitleForPane(m_Tabs.Get(i));
+				string title = CuiAllowedTitleForPane(pane);
 			if (title != "")
 			{
 				CuiReskinTabControl(i, title);   // swap in a CUI-styled button
@@ -112,6 +116,7 @@ modded class TabberUI
 		TextWidget control_text = TextWidget.Cast( control.FindAnyWidget( "Tab_Control_x_Title" ) );
 
 		pane.SetName( "Tab_" + new_index );
+		pane.SetFlags( WidgetFlags.IGNOREPOINTER );   // Legion: full-screen pane must not block Apply/Undo/Default
 		m_Root.AddChild( pane );
 
 		control.SetName( "Tab_Control_" + new_index );
@@ -261,6 +266,7 @@ modded class TabberUI
 		TextWidget control_text = TextWidget.Cast( control.FindAnyWidget( "Tab_Control_x_Title" ) );
 
 		tab.SetName( "Tab_" + new_index );
+		tab.SetFlags( WidgetFlags.IGNOREPOINTER );   // Legion: full-screen pane must not block Apply/Undo/Default
 		control.SetName( "Tab_Control_" + new_index );
 		control_text.SetName( "Tab_Control_" + new_index + "_Title" );
 		control.FindAnyWidget( "Tab_Control_x_Background" ).SetName( "Tab_Control_" + new_index + "_Background" );
